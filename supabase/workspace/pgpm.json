@@ -1,0 +1,15 @@
+{
+  "packages": [
+    "packages/*",
+    "extensions/*"
+  ],
+  "db": {
+    "roles": {
+      "anonymous": "anon",
+      "authenticated": "authenticated",
+      "administrator": "service_role",
+      "default": "anon"
+    },
+    "useLocksForRoles": true
+  }
+}

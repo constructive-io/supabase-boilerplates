@@ -1,0 +1,127 @@
+name: supabase tests
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Both jobs run against the local Supabase stack the Supabase CLI starts on the
+# runner, so tests and the audit see Supabase's own roles (anon, authenticated,
+# service_role) and its auth schema.
+env:
+  PGHOST: 127.0.0.1
+  PGPORT: 54322
+  PGUSER: supabase_admin
+  PGPASSWORD: postgres
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Workspace-relative paths of the packages to test. `pgpm init` adds each
+        # new module here, keeping the list sorted; edit it by hand as you like.
+        # GitHub rejects an empty matrix, so this workflow is valid once the
+        # workspace has its first module.
+        package: []
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      # Commit the `supabase/` directory `supabase init` creates to pin your
+      # stack's config; without it CI starts one with the defaults.
+      - name: Initialize Supabase (if needed)
+        run: test -d supabase || supabase init
+
+      - name: Start Supabase stack
+        run: supabase start
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install
+
+      # Fails when pnpm-workspace.yaml no longer matches pnpm-policy.yaml, or when a
+      # waiver has passed its expiry date.
+      - name: Check supply-chain policy
+        run: pnpm run policy:check
+
+      - name: Test ${{ matrix.package }}
+        run: cd ./${{ matrix.package }} && pnpm test
+
+  # The security + performance audit of the schema this workspace deploys
+  # (safegres, configured in the root safegres.config.js with the
+  # `safegres:supabase` preset): every module under packages/ is deployed into
+  # one ephemeral database on the Supabase stack and its catalog scanned. Gates
+  # on the security grade and on perf findings absent from the committed
+  # baseline. The run on `main` is the baseline each PR's delta is measured
+  # against.
+  audit:
+    name: Database audit (safegres)
+    runs-on: ubuntu-latest
+
+    # `actions: read` lets the audit find the base branch's previous report to
+    # measure the delta against; `pull-requests: write` lets it post that as a
+    # sticky comment.
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Initialize Supabase (if needed)
+        run: test -d supabase || supabase init
+
+      - name: Start Supabase stack
+        run: supabase start
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install
+        run: pnpm install
+
+      # `version: local` runs the safegres this workspace pins: auditing a pgpm
+      # workspace deploys it through pgsql-test, an optional peer a globally
+      # installed CLI cannot resolve.
+      - name: Database audit
+        uses: constructive-io/constructive/packages/safegres@safegres-action-v1
+        with:
+          version: local
+          comment: ${{ github.event_name == 'pull_request' }}
