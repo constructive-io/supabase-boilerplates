@@ -34,7 +34,7 @@ export PGHOST=127.0.0.1 PGPORT=54322 PGUSER=supabase_admin PGPASSWORD=postgres
 # Create a module, then give it the Supabase schemas (auth, storage, roles)
 pgpm init
 cd packages/your-module
-pgpm install @pgpm/supabase
+pgpm install @pgpm/supabase-schema
 
 # Run tests
 pnpm test:watch
@@ -60,7 +60,7 @@ npx supabase db dump --local -f schema.sql
 # In this workspace
 pgpm import schema.sql --pkg my-app --out packages
 cd packages/my-app
-pgpm install @pgpm/supabase   # adds the auth schema your policies reference
+pgpm install @pgpm/supabase-schema   # adds the auth schema your policies reference
 pgpm deploy --database my_app_check --createdb --yes
 ```
 

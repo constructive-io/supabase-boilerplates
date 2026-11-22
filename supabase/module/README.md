@@ -17,7 +17,7 @@ This module was generated with `pgpm init`. For a complete guide on creating and
 
 ```sh
 # Once: add the Supabase schemas (auth, storage, roles) this module deploys on top of
-pgpm install @pgpm/supabase
+pgpm install @pgpm/supabase-schema
 
 # Install dependencies
 pnpm install

@@ -35,7 +35,7 @@ npx skills add https://github.com/constructive-io/constructive --skill pgpm
 - The database is the local Supabase stack: `npx supabase start`, then
   `export PGHOST=127.0.0.1 PGPORT=54322 PGUSER=supabase_admin PGPASSWORD=postgres`.
   Do not use `pgpm docker start` here — plain Postgres has no `auth` schema or Supabase roles.
-- A new module needs `pgpm install @pgpm/supabase` (run inside it) before its tests deploy.
+- A new module needs `pgpm install @pgpm/supabase-schema` (run inside it) before its tests deploy.
 - The database audit is workspace-level: `pnpm run audit:db` at the root deploys every
   module into an ephemeral database and grades it (`safegres.config.js`). Do not add
   per-module safegres configs or scripts — declare `exposure` and retune gates in the

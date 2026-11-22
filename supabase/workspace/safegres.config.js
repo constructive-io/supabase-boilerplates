@@ -23,7 +23,7 @@ module.exports = {
   source: { pgpm: '.' },
 
   // The pgpm ledger is the package manager's own bookkeeping, and `auth`,
-  // `storage` and `supabase_functions` are Supabase's own (from @pgpm/supabase):
+  // `storage` and `supabase_functions` are Supabase's own (from @pgpm/supabase-schema):
   // not your code, so their findings are not yours to fix.
   excludeSchemas: ['pgpm_migrate', 'auth', 'storage', 'supabase_functions'],
 
