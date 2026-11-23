@@ -75,9 +75,9 @@ jobs:
             --repoName demo --fullName "CI Test User" --email ci@example.com \
             --username ci --access public --license MIT --no-interactive
 
-      - name: Install @pgpm/supabase into the module
+      - name: Install @pgpm/supabase-schema into the module
         working-directory: ${{ runner.temp }}/scaffold/demo/packages/demo-module
-        run: pgpm install @pgpm/supabase
+        run: pgpm install @pgpm/supabase-schema
 
       # No --config.minimum-release-age override: this is the install a new user runs.
       - name: pnpm install

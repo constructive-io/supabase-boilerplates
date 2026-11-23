@@ -17,7 +17,7 @@ pgpm init workspace --repo https://github.com/constructive-io/supabase-boilerpla
 # Create a new module (inside the workspace; it inherits this template repo)
 pgpm init
 cd packages/your-module
-pgpm install @pgpm/supabase
+pgpm install @pgpm/supabase-schema
 ```
 
 The templates are fetched from this repository and cached locally under `~/.pgpm/cache/repos`. Use `pgpm cache clean` to clear the cache if you need a fresh pull.
